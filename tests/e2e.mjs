@@ -105,8 +105,21 @@ await page.goto(BASE + "/learn/uni/calculus/differentiation").catch(() => {});
 ok((await page.locator("h1").innerText()).toLowerCase().includes("offline"), "unvisited page shows the friendly offline page");
 await ctx.setOffline(false);
 
+// 9b. Library: categories, search and filter
+await go("/library");
+ok((await page.getByRole("status").innerText()).includes("116 results"), "library lists all 116 resources");
+await page.fill("#rq", "python");
+ok(!(await page.getByRole("status").innerText()).includes("116"), "library search narrows results");
+await page.fill("#rq", "");
+await page.getByRole("button", { name: "GitHub repos", exact: true }).click();
+ok((await page.locator("main section h2").allInnerTexts()).join() === "GitHub repos", "category filter shows one group");
+await page.fill("#rq", "zzzznothing");
+ok(await page.getByText("Nothing matches").count() === 1, "empty library search is explained");
+await go("/trivia");
+ok(await page.getByRole("button", { name: /Start 10 questions/ }).count() === 1, "trivia page loads");
+
 // 10. No horizontal scroll at phone width on key pages
-for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor"]) {
+for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia"]) {
   await go(p);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   ok(!overflow, `no horizontal scroll at 390px on ${p}`);
