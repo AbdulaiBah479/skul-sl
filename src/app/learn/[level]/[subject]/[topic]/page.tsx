@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allTopicParams, resolveTopic } from "@/content/books";
+import { allTopicParams, extraFor, relatedTopics, resolveTopic } from "@/content/books";
 import Lesson from "@/components/Lesson";
 import Quiz from "@/components/Quiz";
 import TopicActions from "@/components/TopicActions";
@@ -29,6 +29,17 @@ export default async function TopicPage({ params }: P) {
   const next = flat[idx + 1];
   const key = `${level}/${subject}/${t.id}`;
   const base = `/learn/${level}/${subject}`;
+  const extra = extraFor(level, subject, t.id);
+  const related = relatedTopics(level, subject, t.id, t.title);
+  const q = encodeURIComponent(t.title.replace(/^Introduction: /, ""));
+  const links: [string, string][] = [
+    ["Wikipedia", `https://en.wikipedia.org/w/index.php?search=${q}`],
+    ["Khan Academy", `https://www.khanacademy.org/search?page_search_query=${q}`],
+    ["Videos on YouTube", `https://www.youtube.com/results?search_query=${q}+explained`],
+    ["Wikibooks", `https://en.wikibooks.org/w/index.php?search=${q}`],
+    ...(level === "uni" || level === "sss" ? ([["Google Scholar", `https://scholar.google.com/scholar?q=${q}`]] as [string, string][]) : []),
+    ...(book ? ([[`Full book: ${book.title}`, book.url]] as [string, string][]) : []),
+  ];
   return (
     <div>
       <p className="text-sm"><Link href={base}>← {view.subject.title}</Link></p>
@@ -44,6 +55,38 @@ export default async function TopicPage({ params }: P) {
           Images and some exercises were left out, and the text was reformatted for phones.
         </p>
       )}
+      {extra && (
+        <section className="mt-6" aria-labelledby="global">
+          <h2 id="global" className="mb-2 text-xl font-bold">🌍 Global notes</h2>
+          <p className="mb-2 text-xs text-muted">
+            Extra reading from {extra.source}: <a href={extra.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">{extra.title}</a>, shortened.
+            Licensed <a href={extra.licenseUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">{extra.license}</a>; authors are listed in the article history. Written for a worldwide audience, so some examples and spelling may differ from your syllabus. Wikipedia can contain mistakes, so check important facts.
+          </p>
+          <article className="card p-5">
+            <Lesson lines={extra.lines} />
+          </article>
+        </section>
+      )}
+
+      <section className="mt-6" aria-labelledby="further">
+        <h2 id="further" className="mb-2 text-xl font-bold">🔗 Go further (free)</h2>
+        <ul className="flex flex-wrap gap-2">
+          {links.map(([label, href]) => (
+            <li key={label}><a href={href} target="_blank" rel="noopener noreferrer" className="btn btn-ghost text-sm no-underline">{label} ↗</a></li>
+          ))}
+        </ul>
+        {related.length > 0 && (
+          <>
+            <h3 className="mt-4 mb-1 font-bold">Related lessons in Skul SL</h3>
+            <ul className="grid gap-2">
+              {related.map((r) => (
+                <li key={r.href}><Link href={r.href} className="card block p-3 text-sm no-underline hover:border-brand"><span className="font-semibold">{r.title}</span> <span className="text-xs text-muted">{r.where}</span></Link></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
+
       <TopicActions topicKey={key} title={t.title} />
 
       {t.selfCheck && t.selfCheck.length > 0 && (

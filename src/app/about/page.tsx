@@ -13,7 +13,7 @@ export default function About() {
       </ul>
       <h2 className="text-lg font-bold">About the content</h2>
       <ul className="list-disc space-y-1 pl-6">
-        <li>Short revision lessons and quiz questions are original. Longer lessons are adapted from free OpenStax textbooks (see Credits and licences); those stay non-commercial and carry the original licence.</li><li>None of it is real exam papers or an official syllabus.</li>
+        <li>Short revision lessons and quiz questions are original. Longer lessons are adapted from free OpenStax textbooks (see Credits and licences); those stay non-commercial and carry the original licence.</li><li>The “Global notes” are shortened Wikipedia articles for a worldwide audience. They go beyond the syllabus and can contain mistakes.</li><li>None of it is real exam papers or an official syllabus.</li>
         <li>Always follow your teacher, school and the examination body for official requirements.</li>
         <li>Grade calculators are guides. Universities set their own rules.</li>
         <li>Found a mistake? Tell your teacher or the app owner so it can be fixed.</li>

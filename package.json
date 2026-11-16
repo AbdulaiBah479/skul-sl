@@ -8,9 +8,10 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/content.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/calc.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/resources.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/books.test.mts",
+    "test": "node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/content.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/calc.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/resources.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/books.test.mts && node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/extra.test.mts",
     "check:links": "node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings tests/check-links.mts",
-    "import:books": "node scripts/import-openstax.mjs"
+    "import:books": "node scripts/import-openstax.mjs",
+    "enrich:wiki": "node --import ./tests/register-ts.mjs --experimental-strip-types --no-warnings scripts/enrich-wikipedia.mjs"
   },
   "dependencies": {
     "next": "^16.4.6",

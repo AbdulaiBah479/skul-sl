@@ -27,6 +27,11 @@ export default function Credits() {
           </li>
         ))}
       </ul>
+      <h2 className="pt-2 text-lg font-bold">Wikipedia (Global notes)</h2>
+      <p className="text-sm">
+        The “Global notes” on many lessons are shortened extracts of <a href="https://www.wikipedia.org" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">Wikipedia</a> articles, available under the{" "}
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">Creative Commons Attribution-ShareAlike 4.0 licence</a>. Each note links to its article, where the authors are listed in the page history. We removed references, images and some sections.
+      </p>
       <p className="text-sm"><Link href="/about">About Skul SL</Link></p>
     </div>
   );
