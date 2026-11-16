@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f8f5;
+  --card: #ffffff;
+  --ink: #14231a;
+  --muted: #52625a;
+  --line: #dde5df;
+  --brand: #14803c;
+  --brand-ink: #ffffff;
+  --accent: #0b5fa5;
+  --warn: #9a5b00;
+  --good-bg: #e3f5e8;
+  --bad-bg: #fde8e6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1511;
+    --card: #16201a;
+    --ink: #e9f1ec;
+    --muted: #a3b3aa;
+    --line: #2a3a31;
+    --brand: #3ecf72;
+    --brand-ink: #06210f;
+    --accent: #6cb6ff;
+    --warn: #f0b457;
+    --good-bg: #14301d;
+    --bad-bg: #3a1a17;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-accent: var(--accent);
+  --color-warn: var(--warn);
+  --color-good: var(--good-bg);
+  --color-bad: var(--bad-bg);
+}
+
+html {
+  background: var(--bg);
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.8rem;
+  font-weight: 600;
+  background: var(--brand);
+  color: var(--brand-ink);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
