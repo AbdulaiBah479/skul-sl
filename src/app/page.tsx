@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { LEVELS, countQuestions, allTopics } from "@/content";
+import { LEVELS } from "@/content";
+import { totals } from "@/content/books";
 import HomeStats from "@/components/HomeStats";
 
 export default function Home() {
+  const t = totals();
   return (
     <div>
       <section className="card p-5">
@@ -51,7 +53,7 @@ export default function Home() {
       </ul>
 
       <p className="mt-6 text-center text-xs text-muted">
-        {allTopics().length} topics · {countQuestions()} practice questions · all free.
+        {t.topics.toLocaleString()} topics · {t.questions.toLocaleString()} practice questions · {t.books} open textbooks · all free.
         Content is written for revision. Always check your teacher’s notes and the official syllabus.
       </p>
     </div>

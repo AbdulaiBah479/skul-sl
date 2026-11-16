@@ -11,8 +11,8 @@ export default function Install() {
         <li><strong>iPhone (Safari):</strong> tap Share → <em>Add to Home Screen</em>.</li>
         <li><strong>Computer:</strong> click the install icon in the address bar.</li>
       </ol>
-      <h2 className="mt-6 mb-2 text-lg font-bold">Save all lessons while you have data or Wi-Fi</h2>
-      <p className="text-muted">One tap downloads every lesson and quiz page to this phone so you can study with no internet. This uses a little data once.</p>
+      <h2 className="mt-6 mb-2 text-lg font-bold">Save lessons while you have data or Wi-Fi</h2>
+      <p className="text-muted">Pick the quick lessons or a whole textbook subject, then tap save. Textbook subjects are large (hundreds of pages), so save them on Wi-Fi and one subject at a time.</p>
       <SaveOffline />
       <p className="mt-6 text-sm text-muted">Your progress, notes and flashcards are stored on this phone only. The Explore page and the AI tutor need internet; the AI tutor falls back to searching saved lessons when you are offline.</p>
     </div>

@@ -7,11 +7,18 @@ export interface Question {
   why: string; // short explanation shown after answering
 }
 
+/** An open-ended question with a model answer (shown on tap). Used for textbook exercises. */
+export interface SelfCheck {
+  q: string;
+  a: string;
+}
+
 export interface Topic {
   id: string;
   title: string;
-  lesson: string[]; // paragraphs; lines starting with "- " render as bullets, "## " as a heading
+  lesson: string[]; // paragraphs; "- " bullet, "## " heading, "### " sub-heading
   questions: Question[];
+  selfCheck?: SelfCheck[];
 }
 
 export interface Subject {
@@ -29,4 +36,19 @@ export interface Level {
   blurb: string;
   emoji: string;
   subjects: Subject[];
+}
+
+/** An imported open textbook (see scripts/import-openstax.mjs). */
+export interface BookToc {
+  id: string;
+  title: string;
+  level: LevelId;
+  subject: string;
+  subjectTitle: string;
+  emoji: string;
+  url: string;
+  authors: string;
+  publisher: string;
+  license: { name: string; url: string } | null;
+  chapters: { unit: string | null; title: string; topics: { id: string; title: string }[] }[];
 }

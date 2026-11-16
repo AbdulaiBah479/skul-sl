@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LEVELS, getLevel, topicKey } from "@/content";
-import { SubjectProgress } from "@/components/ProgressBadge";
+import { LEVELS, getLevel } from "@/content";
+import { levelSubjects } from "@/content/books";
 
 export function generateStaticParams() {
   return LEVELS.map((l) => ({ level: l.id }));
@@ -17,6 +17,7 @@ export default async function LevelPage({ params }: { params: Promise<{ level: s
   const { level } = await params;
   const l = getLevel(level);
   if (!l) notFound();
+  const subjects = levelSubjects(l.id);
   return (
     <div>
       <p className="text-sm"><Link href="/learn">← All levels</Link></p>
@@ -28,16 +29,18 @@ export default async function LevelPage({ params }: { params: Promise<{ level: s
         </p>
       )}
       <ul className="mt-4 grid grid-cols-2 gap-3">
-        {l.subjects.map((s) => (
-          <li key={s.id}>
-            <Link href={`/learn/${l.id}/${s.id}`} className="card block p-4 no-underline hover:border-brand">
-              <span className="text-3xl" aria-hidden>{s.emoji}</span>
-              <span className="mt-1 block font-bold">{s.title}</span>
-              <span className="block text-xs text-muted">{s.topics.length} topics</span>
-              <SubjectProgress keys={s.topics.map((t) => topicKey(l.id, s.id, t.id))} />
-            </Link>
-          </li>
-        ))}
+        {subjects.map((s) => {
+          const n = (s.hand?.topics.length ?? 0) + s.books.reduce((a, b) => a + b.chapters.reduce((m, c) => m + c.topics.length, 0), 0);
+          return (
+            <li key={s.id}>
+              <Link href={`/learn/${l.id}/${s.id}`} className="card block h-full p-4 no-underline hover:border-brand">
+                <span className="text-3xl" aria-hidden>{s.emoji}</span>
+                <span className="mt-1 block font-bold">{s.title}</span>
+                <span className="block text-xs text-muted">{n} topics{s.books.length ? " · with open textbook" : ""}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

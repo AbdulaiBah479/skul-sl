@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { searchLessons, type Hit } from "@/lib/search";
+import { searchLessons, words, type Hit } from "@/lib/search";
+import { fetchIndex } from "@/lib/bookindex";
 import { markActive } from "@/lib/store";
 
 type Msg = { role: "user" | "assistant"; content: string; hits?: Hit[] };
@@ -34,6 +35,19 @@ export default function Tutor() {
     } catch (e) {
       // No internet or no AI: still help, from the lessons stored in this app.
       const hits = searchLessons(q);
+      // also match the titles of the textbook lessons (their index is small and saved for offline use)
+      try {
+        const idx = await fetchIndex();
+        const qw = words(q);
+        const found: Hit[] = [];
+        for (const [id, e] of Object.entries(idx))
+          for (const [tid, title] of e.topics) {
+            const tw = words(title);
+            const score = qw.filter((w) => tw.includes(w)).length;
+            if (score) found.push({ key: `${id}/${tid}`, href: `/learn/${e.level}/${e.subject}/${tid}`, title, where: e.title, snippet: "Textbook lesson", score });
+          }
+        hits.push(...found.sort((a, b) => b.score - a.score).slice(0, 4));
+      } catch {}
       const why = e instanceof Error && e.message ? e.message : "The AI tutor is not available.";
       setMsgs([
         ...next,

@@ -1,28 +1,26 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LEVELS, topicKey } from "@/content";
 import { markActive, saveCard, useProgress } from "@/lib/store";
 import { isDue, newCard, review, type ReviewGrade, type StoredCard } from "@/lib/srs";
+import { booksFor, fetchBank, fetchIndex, isMcq } from "@/lib/bookindex";
 
-// Every quiz question becomes a flashcard: question on the front, answer + reason on the back.
+// Every quiz question and textbook Q&A becomes a flashcard: question on the front, answer on the back.
 interface CardDef {
   id: string;
   front: string;
   back: string;
-  level: string;
 }
 
-const ALL: CardDef[] = LEVELS.flatMap((l) =>
-  l.subjects.flatMap((s) =>
-    s.topics.flatMap((t) =>
-      t.questions.map((q, i) => ({
-        id: `${topicKey(l.id, s.id, t.id)}#${i}`,
-        front: q.q,
-        back: `${q.options[q.answer]} — ${q.why}`,
-        level: l.id,
-      }))
-    )
-  )
+const HAND: Record<string, CardDef[]> = Object.fromEntries(
+  LEVELS.map((l) => [
+    l.id,
+    l.subjects.flatMap((s) =>
+      s.topics.flatMap((t) =>
+        t.questions.map((q, i) => ({ id: `${topicKey(l.id, s.id, t.id)}#${i}`, front: q.q, back: `${q.options[q.answer]} — ${q.why}` }))
+      )
+    ),
+  ])
 );
 
 export default function Flashcards() {
@@ -30,17 +28,27 @@ export default function Flashcards() {
   const [level, setLevel] = useState("sss");
   const [flipped, setFlipped] = useState(false);
   const [skipped, setSkipped] = useState<string[]>([]);
+  const [bookCards, setBookCards] = useState<CardDef[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const stored = (id: string): StoredCard | null => {
-    try {
-      return p.cards[id] ? (JSON.parse(p.cards[id]) as StoredCard) : null;
-    } catch {
-      return null;
-    }
-  };
+  useEffect(() => {
+    let live = true;
+    setLoading(true);
+    fetchIndex().then(async (idx) => {
+      const lists = await Promise.all(
+        booksFor(idx, level).map(async ([id]) => {
+          const items = await fetchBank(id);
+          return items.map((x, i): CardDef => (isMcq(x) ? { id: `${id}#${i}`, front: x.q, back: `${x.options[x.answer]} — ${x.why}` } : { id: `${id}#${i}`, front: x.card.q, back: x.card.a }));
+        })
+      );
+      if (live) { setBookCards(lists.flat()); setLoading(false); }
+    });
+    return () => { live = false; };
+  }, [level]);
+
+  const pool = useMemo(() => [...(HAND[level] ?? []), ...bookCards], [level, bookCards]);
 
   const queue = useMemo(() => {
-    const pool = ALL.filter((c) => c.level === level);
     const due: CardDef[] = [];
     const fresh: CardDef[] = [];
     for (const c of pool) {
@@ -50,19 +58,18 @@ export default function Flashcards() {
       else if (isDue(s)) due.push(c);
     }
     return [...due, ...fresh.slice(0, 20)];
-  }, [level, p.cards, skipped]);
+  }, [pool, p.cards, skipped]);
 
   const cur = queue[0];
-  const learned = ALL.filter((c) => c.level === level && p.cards[c.id]).length;
-  const total = ALL.filter((c) => c.level === level).length;
+  const learned = pool.filter((c) => p.cards[c.id]).length;
 
   const grade = (g: ReviewGrade) => {
     if (!cur) return;
-    saveCard(cur.id, JSON.stringify(review(stored(cur.id) ?? newCard(), g)));
+    const prev = p.cards[cur.id] ? (JSON.parse(p.cards[cur.id]) as StoredCard) : newCard();
+    saveCard(cur.id, JSON.stringify(review(prev, g)));
     markActive();
     setFlipped(false);
-    // "again" cards come back later in this session
-    if (g === "again") setSkipped((s) => [...s, cur.id]);
+    if (g === "again") setSkipped((s) => [...s, cur.id]); // comes back later
   };
 
   return (
@@ -75,7 +82,7 @@ export default function Flashcards() {
           {LEVELS.map((l) => <option key={l.id} value={l.id}>{l.title}</option>)}
         </select>
       </label>
-      <p className="mt-2 text-sm text-muted">Started {learned} of {total} cards · {queue.length} ready now</p>
+      <p className="mt-2 text-sm text-muted">{loading ? "Loading cards…" : `Started ${learned} of ${pool.length} cards · ${queue.length} ready now`}</p>
 
       {cur ? (
         <div className="card mt-4 p-5">
@@ -91,12 +98,12 @@ export default function Flashcards() {
             </div>
           )}
         </div>
-      ) : (
+      ) : !loading ? (
         <div className="card mt-4 p-5 text-center" role="status">
           <p className="text-lg font-bold">All done for now 🎉</p>
           <p className="text-sm text-muted">Come back later. Your next cards will be ready when it is time to review them.</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

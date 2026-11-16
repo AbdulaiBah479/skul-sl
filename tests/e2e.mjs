@@ -118,8 +118,27 @@ ok(await page.getByText("Nothing matches").count() === 1, "empty library search 
 await go("/trivia");
 ok(await page.getByRole("button", { name: /Start 10 questions/ }).count() === 1, "trivia page loads");
 
+// 9c. Imported textbooks
+await go("/learn/sss/biology");
+const sub = await page.locator("main").innerText();
+ok(sub.includes("Exam essentials") && sub.includes("Chemistry of Life"), "biology subject lists hand-written essentials and textbook chapters");
+await go("/learn/sss/biology/the-building-blocks-of-molecules");
+ok((await page.locator("main").innerText()).includes("Adapted from Concepts of Biology"), "textbook lesson shows its attribution and licence");
+ok((await page.locator("main a[href*='creativecommons.org']").count()) === 1, "licence links to creativecommons.org");
+ok((await page.locator("details").count()) > 0, "self-check questions are present");
+await page.getByText(/Question 1 of/).waitFor();
+ok(true, "textbook topic has a quiz");
+await go("/practice");
+await page.selectOption("select >> nth=1", "biology");
+await page.getByText(/\d{3,} available/).waitFor({ timeout: 15000 });
+ok(true, "practice loads hundreds of textbook questions for biology");
+await go("/credits");
+ok((await page.locator("main li.card").count()) >= 17, "credits page lists every textbook");
+await go("/curriculum");
+ok((await page.locator("main").innerText()).includes("Full textbook"), "coverage page marks textbook-backed subjects");
+
 // 10. No horizontal scroll at phone width on key pages
-for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia"]) {
+for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia", "/learn/sss/biology/the-building-blocks-of-molecules", "/curriculum", "/credits"]) {
   await go(p);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   ok(!overflow, `no horizontal scroll at 390px on ${p}`);

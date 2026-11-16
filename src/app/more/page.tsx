@@ -4,12 +4,14 @@ export const metadata = { title: "More" };
 
 const ITEMS = [
   ["/progress", "📊", "My progress", "Streak, scores and notes"],
+  ["/curriculum", "🗺️", "What is covered", "Topics and depth for every subject"],
   ["/flashcards", "🃏", "Flashcards", "Spaced repetition"],
   ["/explore", "🔎", "Explore", "Wikipedia, dictionary, books"],
   ["/library", "📖", "Free library", "Courses, books, GitHub repos and APIs"],
   ["/trivia", "🧩", "Trivia challenge", "General knowledge from a free API"],
   ["/university", "🏛️", "University hub", "Scholarships and research skills"],
   ["/install", "📲", "Install & use offline", "Add Skul SL to your phone"],
+  ["/credits", "📚", "Credits and licences", "Open textbooks used in this app"],
   ["/about", "ℹ️", "About & privacy", "How this app works"],
 ];
 
