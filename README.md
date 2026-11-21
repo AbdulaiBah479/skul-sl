@@ -25,3 +25,15 @@ Copy `.env.example` to `.env.local` and add a key from https://aistudio.google.c
 ## Adding content
 Edit `src/content/<level>.ts`. Each topic needs 2+ lesson lines and 5+ questions; `npm test` checks the structure.
 Have a teacher review new content before release.
+
+## Free courses catalogue
+`npm run import:courses` builds `public/courses/*.json` (≈30,000 entries): free-programming-books (CC BY 4.0), 33 GitHub course repositories,
+all OpenStax textbooks, MIT OpenCourseWare and Coursera's public catalogue (the last two are links only). The `/courses` page loads one
+source at a time; lists over 1.5 MB (Coursera) are downloaded only when chosen on their own.
+
+## Security and quality
+- `SECURITY.md` explains the protections (CSP, HSTS, hardened `/api/tutor`, validated localStorage) and how to report a problem.
+- `npm test` (content, grades, calculator, resources, textbooks, global notes, courses), `npm run typecheck`, `npm run build`.
+- `node tests/e2e.mjs` (56 browser checks incl. security headers and API abuse cases) and `node tests/a11y.mjs` (axe-core, 60 page views,
+  light + dark) need a running production server and Edge; they borrow Playwright/axe from a sibling `deen-companion` checkout.
+- GitHub Actions (`.github/workflows/ci.yml`) runs tests, type check, build and `npm audit`; Dependabot proposes updates weekly.

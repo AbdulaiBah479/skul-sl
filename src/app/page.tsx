@@ -37,7 +37,8 @@ export default function Home() {
           ["/tools/wassce", "🎯", "WASSCE calculator", "Grades and aggregate"],
           ["/tools/gpa", "🎓", "CGPA calculator", "For university"],
           ["/explore", "🔎", "Explore", "Wikipedia and dictionary"],
-          ["/library", "📖", "Free library", "Books, videos, courses"],
+          ["/courses", "🎓", "Free courses", "Thousands, searchable"],
+          ["/library", "📖", "Free library", "Sites, books, repos, APIs"],
           ["/university", "🏛️", "University hub", "Scholarships and skills"],
         ].map(([href, icon, title, sub]) => (
           <li key={href}>

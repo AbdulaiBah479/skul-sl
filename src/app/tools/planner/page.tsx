@@ -24,7 +24,9 @@ export default function Planner() {
 
   useEffect(() => {
     try {
-      setExams(JSON.parse(localStorage.getItem(KEY) || "[]"));
+      const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+      if (Array.isArray(saved))
+        setExams(saved.filter((e): e is Exam => !!e && typeof e.id === "number" && typeof e.subject === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).slice(0, 100));
     } catch {}
     setReady(true);
   }, []);

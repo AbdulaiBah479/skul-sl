@@ -12,6 +12,16 @@ interface CardDef {
   back: string;
 }
 
+function parseCard(s: string | undefined): StoredCard | null {
+  if (!s) return null;
+  try {
+    const c = JSON.parse(s);
+    return c && typeof c.due === "string" && !Number.isNaN(Date.parse(c.due)) ? (c as StoredCard) : null;
+  } catch {
+    return null;
+  }
+}
+
 const HAND: Record<string, CardDef[]> = Object.fromEntries(
   LEVELS.map((l) => [
     l.id,
@@ -53,7 +63,7 @@ export default function Flashcards() {
     const fresh: CardDef[] = [];
     for (const c of pool) {
       if (skipped.includes(c.id)) continue;
-      const s = p.cards[c.id] ? (JSON.parse(p.cards[c.id]) as StoredCard) : null;
+      const s = parseCard(p.cards[c.id]);
       if (!s) fresh.push(c);
       else if (isDue(s)) due.push(c);
     }
@@ -65,7 +75,7 @@ export default function Flashcards() {
 
   const grade = (g: ReviewGrade) => {
     if (!cur) return;
-    const prev = p.cards[cur.id] ? (JSON.parse(p.cards[cur.id]) as StoredCard) : newCard();
+    const prev = parseCard(p.cards[cur.id]) ?? newCard();
     saveCard(cur.id, JSON.stringify(review(prev, g)));
     markActive();
     setFlipped(false);

@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     "Free, offline-friendly lessons, quizzes, exam practice, study tools and an AI tutor for Primary, JSS, SSS, technical and university students in Sierra Leone.",
   applicationName: "Skul SL",
   manifest: "/manifest.webmanifest",
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }], apple: "/apple-touch-icon.png" },
   appleWebApp: { capable: true, title: "Skul SL", statusBarStyle: "default" },
 };
 

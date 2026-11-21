@@ -39,8 +39,8 @@ export default async function SubjectPage({ params }: P) {
         if (g.unit) lastUnit = g.unit;
         return (
           <section key={gi} className="mt-5" aria-label={g.title}>
-            {unitHeading && <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-accent">{unitHeading}</h2>}
-            <h3 className="mb-2 text-lg font-bold">{g.title}</h3>
+            {unitHeading && <p className="mb-1 text-sm font-bold uppercase tracking-wide text-accent">{unitHeading}</p>}
+            <h2 className="mb-2 text-lg font-bold">{g.title}</h2>
             <ul className="grid gap-2">
               {g.topics.map((t) => (
                 <li key={t.id}>

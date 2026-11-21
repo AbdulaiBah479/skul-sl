@@ -2,8 +2,8 @@
 //  • /_next/static and icons: cache-first (they never change for a given URL)
 //  • pages: network-first, falling back to the last saved copy, then to /offline
 //  • never cached: /api/ (the AI tutor and anything personal)
-const CACHE = "skul-v1";
-const SHELL = ["/", "/offline", "/learn", "/practice", "/tools", "/flashcards", "/library", "/explore", "/more", "/icon.svg"];
+const CACHE = "skul-v2";
+const SHELL = ["/", "/offline", "/learn", "/practice", "/tools", "/flashcards", "/library", "/explore", "/courses", "/more", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -30,7 +30,7 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== location.origin) return; // external APIs (Wikipedia etc.) go straight to the network
   if (url.pathname.startsWith("/api/")) return;
 
-  if (url.pathname.startsWith("/_next/static/") || url.pathname === "/icon.svg") {
+  if (url.pathname.startsWith("/_next/static/") || /^\/(icon[a-z0-9-]*|apple-touch-icon)\.(png|svg)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(req).then(
         (hit) =>

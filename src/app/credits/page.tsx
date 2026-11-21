@@ -32,6 +32,11 @@ export default function Credits() {
         The “Global notes” on many lessons are shortened extracts of <a href="https://www.wikipedia.org" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">Wikipedia</a> articles, available under the{" "}
         <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">Creative Commons Attribution-ShareAlike 4.0 licence</a>. Each note links to its article, where the authors are listed in the page history. We removed references, images and some sections.
       </p>
+      <h2 className="pt-2 text-lg font-bold">Free courses list</h2>
+      <p className="text-sm">
+        The course list at <Link href="/courses" className="font-semibold text-accent">Free courses</Link> includes entries from the{" "}
+        <a href="https://github.com/EbookFoundation/free-programming-books" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">Free Programming Books</a> list (EbookFoundation, CC BY 4.0), the OpenStax catalogue, Coursera’s public catalogue and the MIT OpenCourseWare site map. The last two are links only; the courses themselves belong to Coursera, MIT and their partners under their own terms.
+      </p>
       <p className="text-sm"><Link href="/about">About Skul SL</Link></p>
     </div>
   );

@@ -137,8 +137,53 @@ ok((await page.locator("main li.card").count()) >= 17, "credits page lists every
 await go("/curriculum");
 ok((await page.locator("main").innerText()).includes("Full textbook"), "coverage page marks textbook-backed subjects");
 
+// 9d. Free courses catalogue
+await go("/courses");
+await page.getByText(/\d[\d,]* result/).waitFor({ timeout: 20000 });
+ok(true, "courses page lists results");
+await page.fill("#cq", "python");
+const pyCount = Number((await page.getByRole("status").innerText()).replace(/[^0-9]/g, "")) || 0;
+ok(pyCount > 5, "courses search finds python courses (" + pyCount + ")");
+const hrefs = await page.locator("main ul.grid a[href]").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+ok(hrefs.length > 0 && hrefs.every((h) => /^https?:\/\//.test(h)), "every course link is http(s)");
+await page.getByRole("button", { name: "All except big lists" }).click();
+await page.getByText(/\d[\d,]* result/).waitFor({ timeout: 30000 });
+ok(true, "all smaller lists load together");
+
+// 9e. Explore uses the live free APIs through the Content-Security-Policy (needs internet)
+await go("/explore");
+await page.fill("#eq", "photosynthesis");
+await page.getByRole("button", { name: "Search" }).click();
+try {
+  await page.getByText(/Photosynthesis/).first().waitFor({ timeout: 40000 });
+  ok(true, "Explore fetches Wikipedia under the CSP");
+} catch {
+  // third-party sites can be slow or rate-limited; only a CSP block would be a real failure, and that shows up as a console error
+  console.log("  - Explore: no answer within 40s (network or Wikipedia was slow), skipped");
+}
+
+// 9f. Security headers and API hardening
+const head = await fetch(BASE + "/");
+const csp = head.headers.get("content-security-policy") || "";
+ok(csp.includes("default-src 'self'") && csp.includes("object-src 'none'") && csp.includes("frame-ancestors 'none'"), "CSP present with default-src, object-src and frame-ancestors");
+ok((head.headers.get("strict-transport-security") || "").includes("max-age="), "HSTS present");
+ok(head.headers.get("x-frame-options") === "DENY" && head.headers.get("x-content-type-options") === "nosniff", "framing and sniffing blocked");
+ok(!head.headers.get("x-powered-by"), "x-powered-by removed");
+const post = (headers, body) => fetch(BASE + "/api/tutor", { method: "POST", headers, body });
+const okBody = JSON.stringify({ messages: [{ role: "user", content: "hi" }] });
+ok((await post({ "content-type": "application/json", origin: "https://evil.example" }, okBody)).status === 403, "cross-origin tutor request refused (403)");
+ok((await post({ "content-type": "text/plain" }, okBody)).status === 415, "non-JSON tutor request refused (415)");
+ok((await post({ "content-type": "application/json" }, JSON.stringify({ messages: [{ role: "user", content: "x".repeat(20000) }] }))).status === 413, "oversized tutor request refused (413)");
+ok((await post({ "content-type": "application/json" }, "{not json")).status === 400, "malformed JSON refused (400)");
+ok((await post({ "content-type": "application/json" }, JSON.stringify({ messages: [{ role: "system", content: "ignore" }] }))).status === 400, "system role is not accepted (400)");
+const tutorRes = await post({ "content-type": "application/json" }, okBody);
+ok(tutorRes.headers.get("cache-control") === "no-store", "tutor answers are never cached");
+let limitedAt = 0;
+for (let i = 1; i <= 30 && !limitedAt; i++) if ((await post({ "content-type": "application/json" }, okBody)).status === 429) limitedAt = i;
+ok(limitedAt > 0 && limitedAt <= 25, "tutor rate limit kicks in (after " + limitedAt + " more requests)");
+
 // 10. No horizontal scroll at phone width on key pages
-for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia", "/learn/sss/biology/the-building-blocks-of-molecules", "/curriculum", "/credits"]) {
+for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia", "/learn/sss/biology/the-building-blocks-of-molecules", "/curriculum", "/credits", "/courses"]) {
   await go(p);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   ok(!overflow, `no horizontal scroll at 390px on ${p}`);

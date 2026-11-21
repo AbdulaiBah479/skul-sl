@@ -15,11 +15,23 @@ const EMPTY: Progress = { best: {}, attempts: {}, days: [], cards: {}, notes: {}
 let cache: Progress | null = null;
 const listeners = new Set<() => void>();
 
+const isRecord = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
+function sanitize(x: unknown): Progress {
+  if (!isRecord(x)) return EMPTY;
+  const nums: Record<string, number> = {};
+  const strs = (o: unknown) => Object.fromEntries(Object.entries(isRecord(o) ? o : {}).filter(([, v]) => typeof v === "string")) as Record<string, string>;
+  for (const [k, v] of Object.entries(isRecord(x.best) ? x.best : {})) if (typeof v === "number" && v >= 0 && v <= 100) nums[k] = v;
+  const attempts: Record<string, number> = {};
+  for (const [k, v] of Object.entries(isRecord(x.attempts) ? x.attempts : {})) if (typeof v === "number" && v >= 0) attempts[k] = v;
+  const days = Array.isArray(x.days) ? x.days.filter((d): d is string => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-400) : [];
+  return { best: nums, attempts, days, cards: strs(x.cards), notes: strs(x.notes) };
+}
+
 function read(): Progress {
   if (cache) return cache;
   try {
     const raw = localStorage.getItem(KEY);
-    cache = raw ? { ...EMPTY, ...JSON.parse(raw) } : EMPTY;
+    cache = raw ? sanitize(JSON.parse(raw)) : EMPTY;
   } catch {
     cache = EMPTY;
   }
@@ -81,7 +93,7 @@ export function saveCard(id: string, serialized: string) {
 
 export function saveNote(key: string, text: string) {
   const p = read();
-  write({ ...p, notes: { ...p.notes, [key]: text } });
+  write({ ...p, notes: { ...p.notes, [key]: text.slice(0, 5000) } });
 }
 
 export function resetAll() {

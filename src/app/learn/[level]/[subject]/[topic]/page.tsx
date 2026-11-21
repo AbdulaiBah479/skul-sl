@@ -63,7 +63,7 @@ export default async function TopicPage({ params }: P) {
             Licensed <a href={extra.licenseUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">{extra.license}</a>; authors are listed in the article history. Written for a worldwide audience, so some examples and spelling may differ from your syllabus. Wikipedia can contain mistakes, so check important facts.
           </p>
           <article className="card p-5">
-            <Lesson lines={extra.lines} />
+            <Lesson lines={extra.lines} base={3} />
           </article>
         </section>
       )}
