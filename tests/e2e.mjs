@@ -182,8 +182,45 @@ let limitedAt = 0;
 for (let i = 1; i <= 30 && !limitedAt; i++) if ((await post({ "content-type": "application/json" }, okBody)).status === 429) limitedAt = i;
 ok(limitedAt > 0 && limitedAt <= 25, "tutor rate limit kicks in (after " + limitedAt + " more requests)");
 
+// 9g. UI and UX: continue card, search, theme, reading controls, keyboard quiz
+await go("/");
+ok((await page.getByText("Continue learning").count()) === 1, "home offers to continue the last lesson");
+ok((await page.getByText("Question of the day").count()) === 1, "home shows the question of the day");
+await page.getByRole("button", { name: /Theme:/ }).click();
+const t1 = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+await page.getByRole("button", { name: /Theme:/ }).click();
+const t2 = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+ok(t1 === "light" && t2 === "dark", "theme toggle cycles automatic, light, dark (" + t1 + ", " + t2 + ")");
+await page.reload({ waitUntil: "networkidle" });
+ok((await page.evaluate(() => document.documentElement.getAttribute("data-theme"))) === "dark", "chosen theme is remembered after reload");
+await page.getByRole("button", { name: /Theme:/ }).click(); // back to automatic
+await go("/search?q=photosynthesis");
+await page.getByText(/\d+ results? for/).waitFor({ timeout: 20000 });
+ok((await page.locator("main a[href^='/learn/']").count()) > 0, "search finds lessons for 'photosynthesis'");
+await page.fill("#sq", "python");
+await page.keyboard.press("Enter");
+await page.getByText(/results? for “python”/).waitFor({ timeout: 20000 });
+ok(true, "search can be repeated from the page");
+await go("/learn/sss/maths/quadratics");
+ok((await page.getByRole("progressbar", { name: "Reading progress" }).count()) === 1, "lesson has a reading progress bar");
+const fs0 = await page.evaluate(() => getComputedStyle(document.querySelector(".lesson-text")).fontSize);
+await page.getByRole("button", { name: "Larger text" }).click();
+const fs1 = await page.evaluate(() => getComputedStyle(document.querySelector(".lesson-text")).fontSize);
+ok(parseFloat(fs1) > parseFloat(fs0), "A+ makes lesson text larger (" + fs0 + " to " + fs1 + ")");
+await page.getByText("Question 1 of 5").waitFor();
+await page.keyboard.press("a");
+await page.getByRole("status").filter({ hasText: /Correct|Not quite/ }).waitFor();
+ok(true, "quiz answers with the A key");
+await page.keyboard.press("ArrowRight");
+await page.getByText("Question 2 of 5").waitFor();
+ok(true, "quiz moves on with the right arrow key");
+await go("/learn/sss/biology/the-building-blocks-of-molecules");
+ok((await page.getByText(/In this lesson \(\d+ sections\)/).count()) === 1, "long lesson has a table of contents");
+await go("/this-page-does-not-exist");
+ok((await page.getByText("We could not find that page").count()) === 1, "friendly 404 page");
+
 // 10. No horizontal scroll at phone width on key pages
-for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia", "/learn/sss/biology/the-building-blocks-of-molecules", "/curriculum", "/credits", "/courses"]) {
+for (const p of ["/", "/learn", "/learn/sss/maths", "/tools/gpa", "/tools/wassce", "/library", "/tutor", "/trivia", "/learn/sss/biology/the-building-blocks-of-molecules", "/curriculum", "/credits", "/courses", "/search?q=algebra"]) {
   await go(p);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   ok(!overflow, `no horizontal scroll at 390px on ${p}`);

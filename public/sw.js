@@ -2,8 +2,8 @@
 //  • /_next/static and icons: cache-first (they never change for a given URL)
 //  • pages: network-first, falling back to the last saved copy, then to /offline
 //  • never cached: /api/ (the AI tutor and anything personal)
-const CACHE = "skul-v2";
-const SHELL = ["/", "/offline", "/learn", "/practice", "/tools", "/flashcards", "/library", "/explore", "/courses", "/more", "/icon.svg"];
+const CACHE = "skul-v3";
+const SHELL = ["/", "/offline", "/offline.html", "/learn", "/practice", "/tools", "/flashcards", "/library", "/explore", "/courses", "/more", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -57,7 +57,7 @@ self.addEventListener("fetch", (event) => {
         return res;
       })
       .catch(() =>
-        caches.match(req).then((hit) => hit || (req.mode === "navigate" ? caches.match("/offline") : Response.error()))
+        caches.match(req).then((hit) => hit || (req.mode === "navigate" ? caches.match("/offline.html") : Response.error()))
       )
   );
 });

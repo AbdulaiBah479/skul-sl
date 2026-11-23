@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* ---------- design tokens: light by default, dark by system setting, or forced with <html data-theme="light|dark"> ---------- */
 :root {
   --bg: #f6f8f5;
   --card: #ffffff;
@@ -12,9 +13,13 @@
   --warn: #9a5b00;
   --good-bg: #e3f5e8;
   --bad-bg: #fde8e6;
+  --soft: #eef4ef;
+  --shadow: 0 1px 2px rgb(20 35 26 / 0.06), 0 4px 14px rgb(20 35 26 / 0.05);
+  --shadow-lift: 0 2px 4px rgb(20 35 26 / 0.08), 0 10px 26px rgb(20 35 26 / 0.1);
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0e1511;
     --card: #16201a;
     --ink: #e9f1ec;
@@ -26,7 +31,28 @@
     --warn: #f0b457;
     --good-bg: #14301d;
     --bad-bg: #3a1a17;
+    --soft: #1b2820;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.25);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.5), 0 10px 26px rgb(0 0 0 / 0.35);
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1511;
+  --card: #16201a;
+  --ink: #e9f1ec;
+  --muted: #a3b3aa;
+  --line: #2a3a31;
+  --brand: #3ecf72;
+  --brand-ink: #06210f;
+  --accent: #6cb6ff;
+  --warn: #f0b457;
+  --good-bg: #14301d;
+  --bad-bg: #3a1a17;
+  --soft: #1b2820;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.25);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.5), 0 10px 26px rgb(0 0 0 / 0.35);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -41,17 +67,26 @@
   --color-warn: var(--warn);
   --color-good: var(--good-bg);
   --color-bad: var(--bad-bg);
+  --color-soft: var(--soft);
 }
 
 html {
   background: var(--bg);
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
 }
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.55;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.03rem;
+  line-height: 1.6;
   -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 {
+  letter-spacing: -0.012em;
+  text-wrap: balance;
 }
 a {
   color: inherit;
@@ -59,47 +94,178 @@ a {
 :focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 6px;
 }
+
+/* ---------- components ---------- */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 1.1rem;
+  box-shadow: var(--shadow);
+}
+a.card,
+button.card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+a.card:hover {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
+}
+a.card:active {
+  transform: translateY(0);
 }
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  border-radius: 0.8rem;
-  font-weight: 600;
+  gap: 0.45rem;
+  min-height: 46px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.9rem;
+  font-weight: 650;
   background: var(--brand);
   color: var(--brand-ink);
   border: 1px solid transparent;
   cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease, background 0.15s ease;
+}
+.btn:hover {
+  filter: brightness(1.06);
+}
+.btn:active {
+  transform: scale(0.98);
 }
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  filter: none;
 }
 .btn-ghost {
   background: transparent;
   color: var(--ink);
   border: 1px solid var(--line);
 }
+.btn-ghost:hover {
+  background: var(--soft);
+  filter: none;
+}
 .input {
   width: 100%;
-  min-height: 44px;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.7rem;
+  min-height: 46px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.85rem;
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  outline: none;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  padding: 0.3rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-height: 36px;
+}
+.chip[aria-pressed="true"] {
+  background: var(--brand);
+  color: var(--brand-ink);
+  border-color: var(--brand);
+}
+.hero {
+  background: linear-gradient(135deg, #0d6b33 0%, #0b5fa5 100%);
+  color: #fff;
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow-lift);
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -60% auto;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.18), transparent);
+  pointer-events: none;
+}
+.hero a {
+  color: #fff;
+}
+/* one colour family per level (all pass 4.5:1 with white text) */
+.lvl {
+  color: #fff;
+  border-radius: 1.1rem;
+  box-shadow: var(--shadow);
+}
+.lvl-primary { background: linear-gradient(135deg, #a15207, #c2410c); }
+.lvl-jss { background: linear-gradient(135deg, #0b5fa5, #1d4ed8); }
+.lvl-sss { background: linear-gradient(135deg, #0d6b33, #15803d); }
+.lvl-tech { background: linear-gradient(135deg, #0f766e, #0e7490); }
+.lvl-uni { background: linear-gradient(135deg, #6d28d9, #7c3aed); }
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--soft);
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), var(--accent));
+  transition: width 0.3s ease;
+}
+.skeleton {
+  border-radius: 0.8rem;
+  background: linear-gradient(90deg, var(--soft), color-mix(in srgb, var(--soft) 50%, var(--card)), var(--soft));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+.lesson-text {
+  font-size: var(--lesson-fs, 1.06rem);
+  line-height: 1.8;
+  max-width: 70ch;
+}
+.lesson-text p { margin: 0.8em 0; }
+@media (max-width: 640px) {
+  .lesson-text { max-width: none; }
+}
+.fade-in {
+  animation: fade-in 0.25s ease both;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, *::before, *::after {
     animation: none !important;
     transition: none !important;
+    scroll-behavior: auto !important;
   }
+}
+@media print {
+  header, nav, .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card { box-shadow: none; }
+}
+
+/* grid children may shrink below their content width, so long titles truncate instead of widening the page */
+.grid > * {
+  min-width: 0;
 }

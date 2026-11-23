@@ -21,7 +21,12 @@ export default async function LevelPage({ params }: { params: Promise<{ level: s
   return (
     <div>
       <p className="text-sm"><Link href="/learn">← All levels</Link></p>
-      <h1 className="mt-1 text-2xl font-extrabold">{l.emoji} {l.title}</h1>
+      <header className={`lvl lvl-${l.id} mt-2 p-5`}>
+        <p className="text-3xl" aria-hidden>{l.emoji}</p>
+        <h1 className="mt-1 text-2xl font-extrabold leading-tight">{l.title}</h1>
+        <p className="opacity-95">{l.blurb}</p>
+        <p className="mt-1 text-xs font-semibold opacity-95">{l.exam}</p>
+      </header>
       <p className="text-muted">{l.blurb}</p>
       {l.id === "uni" && (
         <p className="mt-3 card p-3 text-sm">

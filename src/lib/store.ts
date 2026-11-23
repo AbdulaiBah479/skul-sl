@@ -8,10 +8,11 @@ export interface Progress {
   days: string[]; // YYYY-MM-DD days with activity (for the streak)
   cards: Record<string, string>; // flashcard id -> serialized FSRS card
   notes: Record<string, string>;
+  last: { href: string; title: string } | null; // the lesson the student opened most recently
 }
 
 const KEY = "skul-sl-progress-v1";
-const EMPTY: Progress = { best: {}, attempts: {}, days: [], cards: {}, notes: {} };
+const EMPTY: Progress = { best: {}, attempts: {}, days: [], cards: {}, notes: {}, last: null };
 let cache: Progress | null = null;
 const listeners = new Set<() => void>();
 
@@ -24,7 +25,9 @@ function sanitize(x: unknown): Progress {
   const attempts: Record<string, number> = {};
   for (const [k, v] of Object.entries(isRecord(x.attempts) ? x.attempts : {})) if (typeof v === "number" && v >= 0) attempts[k] = v;
   const days = Array.isArray(x.days) ? x.days.filter((d): d is string => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-400) : [];
-  return { best: nums, attempts, days, cards: strs(x.cards), notes: strs(x.notes) };
+  const l = x.last;
+  const last = isRecord(l) && typeof l.href === "string" && /^\/learn\/[a-z0-9\/-]+$/.test(l.href) && typeof l.title === "string" ? { href: l.href, title: l.title.slice(0, 160) } : null;
+  return { best: nums, attempts, days, cards: strs(x.cards), notes: strs(x.notes), last };
 }
 
 function read(): Progress {
@@ -94,6 +97,12 @@ export function saveCard(id: string, serialized: string) {
 export function saveNote(key: string, text: string) {
   const p = read();
   write({ ...p, notes: { ...p.notes, [key]: text.slice(0, 5000) } });
+}
+
+export function setLast(href: string, title: string) {
+  const p = read();
+  if (p.last?.href === href) return;
+  write({ ...p, last: { href, title } });
 }
 
 export function resetAll() {

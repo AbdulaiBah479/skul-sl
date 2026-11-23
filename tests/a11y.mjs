@@ -17,7 +17,7 @@ const PAGES = [
   "/", "/learn", "/learn/sss", "/learn/sss/biology", "/learn/sss/biology/the-building-blocks-of-molecules", "/learn/sss/maths/quadratics",
   "/learn/primary/maths/place-value", "/learn/uni", "/practice", "/flashcards", "/tools", "/tools/wassce", "/tools/gpa", "/tools/target",
   "/tools/timer", "/tools/planner", "/tools/calculator", "/tutor", "/library", "/courses", "/explore", "/trivia", "/university", "/more",
-  "/progress", "/install", "/about", "/credits", "/curriculum", "/offline",
+  "/search?q=algebra", "/progress", "/install", "/about", "/credits", "/curriculum", "/offline",
 ];
 
 let browser = await chromium.launch({ channel: "msedge", headless: true });

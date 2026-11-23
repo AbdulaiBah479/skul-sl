@@ -4,6 +4,8 @@ import { allTopicParams, extraFor, relatedTopics, resolveTopic } from "@/content
 import Lesson from "@/components/Lesson";
 import Quiz from "@/components/Quiz";
 import TopicActions from "@/components/TopicActions";
+import ReaderBar from "@/components/ReaderBar";
+import { outline, readingMinutes } from "@/lib/outline";
 
 export function generateStaticParams() {
   return allTopicParams();
@@ -30,6 +32,8 @@ export default async function TopicPage({ params }: P) {
   const key = `${level}/${subject}/${t.id}`;
   const base = `/learn/${level}/${subject}`;
   const extra = extraFor(level, subject, t.id);
+  const toc = outline(t.lesson, "s");
+  const minutes = readingMinutes(t.lesson) + (extra ? readingMinutes(extra.lines) : 0);
   const related = relatedTopics(level, subject, t.id, t.title);
   const q = encodeURIComponent(t.title.replace(/^Introduction: /, ""));
   const links: [string, string][] = [
@@ -43,7 +47,16 @@ export default async function TopicPage({ params }: P) {
   return (
     <div>
       <p className="text-sm"><Link href={base}>← {view.subject.title}</Link></p>
-      <h1 className="mt-1 text-2xl font-extrabold">{t.title}</h1>
+      <h1 className="mt-1 text-2xl font-extrabold leading-tight sm:text-3xl">{t.title}</h1>
+      <ReaderBar href={`/learn/${level}/${subject}/${t.id}`} title={t.title} minutes={minutes} />
+      {toc.length >= 3 && (
+        <details className="card no-print mt-3 p-3">
+          <summary className="cursor-pointer font-semibold">In this lesson ({toc.length} sections)</summary>
+          <ol className="mt-2 grid list-decimal gap-1 pl-6 text-sm">
+            {toc.map((h) => <li key={h.id}><a href={`#${h.id}`} className="text-accent">{h.text}</a></li>)}
+          </ol>
+        </details>
+      )}
       <article className="card mt-3 p-5">
         <Lesson lines={t.lesson} />
       </article>
@@ -63,7 +76,7 @@ export default async function TopicPage({ params }: P) {
             Licensed <a href={extra.licenseUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent">{extra.license}</a>; authors are listed in the article history. Written for a worldwide audience, so some examples and spelling may differ from your syllabus. Wikipedia can contain mistakes, so check important facts.
           </p>
           <article className="card p-5">
-            <Lesson lines={extra.lines} base={3} />
+            <Lesson lines={extra.lines} base={3} idPrefix="g" />
           </article>
         </section>
       )}

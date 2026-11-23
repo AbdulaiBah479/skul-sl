@@ -1,5 +1,6 @@
 "use client";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { Suspense, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 // Free-course catalogue built by scripts/import-courses.mjs from open GitHub lists and public catalogues.
 // Each source is a separate JSON file in /courses, loaded only when chosen (the biggest are several hundred KB).
@@ -34,13 +35,14 @@ function loadRows(id: string): Promise<Row[]> {
 // Only ever link to http(s) pages, whatever the catalogue file says.
 const safe = (u: string) => (/^https?:\/\//i.test(u) ? u : "#");
 
-export default function Courses() {
+function CoursesInner() {
+  const initialQ = useSearchParams().get("q") ?? "";
   const [index, setIndex] = useState<Record<string, Meta> | null>(null);
   const [source, setSource] = useState("fpb");
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQ.slice(0, 80));
   const [cat, setCat] = useState("");
   const [shown, setShown] = useState(PAGE);
   const dq = useDeferredValue(q);
@@ -142,5 +144,13 @@ export default function Courses() {
       )}
       {!loading && !results.length && <p className="mt-4 text-muted">Nothing matches. Try another word or choose “All except big lists”.</p>}
     </div>
+  );
+}
+
+export default function Courses() {
+  return (
+    <Suspense fallback={<div className="skeleton h-14" aria-label="Loading courses" />}>
+      <CoursesInner />
+    </Suspense>
   );
 }
